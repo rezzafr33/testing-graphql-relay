@@ -102,10 +102,7 @@ const deleteUserMutation = mutationWithClientMutationId({
   outputFields: {
     deletedUserCount: {
       type: GraphQLInt,
-      resolve: (obj) => {
-        console.log(obj);
-        return obj.data;
-      },
+      resolve: obj => obj.data,
     },
   },
   mutateAndGetPayload: async ({ userId }, { models }) => {
