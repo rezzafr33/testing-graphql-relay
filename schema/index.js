@@ -95,7 +95,7 @@ const createUserMutation = mutationWithClientMutationId({
 });
 
 const deleteUserMutation = mutationWithClientMutationId({
-  name: 'deleteUser',
+  name: 'DeleteUser',
   inputFields: {
     userId: { type: new GraphQLNonNull(GraphQLString) },
   },
