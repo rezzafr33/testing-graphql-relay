@@ -1,9 +1,10 @@
 import {
+  GraphQLID,
+  GraphQLInt,
+  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
-  GraphQLNonNull,
-  GraphQLInt,
 } from 'graphql';
 
 import {
@@ -55,7 +56,7 @@ const UserListType = new GraphQLObjectType({
   name: 'UserList',
   fields: {
     id: globalIdField('UserList'),
-    userConnection: {
+    users: {
       type: UserConnectionType,
       args: connectionArgs,
       resolve: async (_, args, { models }) => connectionFromPromisedArray(
@@ -73,7 +74,7 @@ const queryType = new GraphQLObjectType({
   name: 'RootQuery',
   fields: {
     node: nodeField,
-    userList: {
+    viewer: {
       type: UserListType,
       resolve: () => userList,
     },
@@ -97,18 +98,22 @@ const createUserMutation = mutationWithClientMutationId({
 const deleteUserMutation = mutationWithClientMutationId({
   name: 'DeleteUser',
   inputFields: {
-    userId: { type: new GraphQLNonNull(GraphQLString) },
+    userId: { type: new GraphQLNonNull(GraphQLID) },
   },
   outputFields: {
-    deletedUserCount: {
-      type: GraphQLInt,
-      resolve: obj => obj.data,
+    deletedUserId: {
+      type: GraphQLID,
+      resolve: ({ id }) => id,
+    },
+    viewer: {
+      type: UserListType,
+      resolve: () => userList,
     },
   },
   mutateAndGetPayload: async ({ userId }, { models }) => {
     const { id } = fromGlobalId(userId);
-    const data = await models.User.destroy({ where: { id } });
-    return { data };
+    return models.User.destroy({ where: { id } })
+      .then(() => ({ id: userId }));
   },
 });
 
