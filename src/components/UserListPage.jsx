@@ -9,8 +9,8 @@ import UserList from './UserList';
 
 const UserListPageQuery = graphql `
   query UserListPageQuery {
-    userList {
-      ...UserList_userList
+    viewer {
+      ...UserList_viewer
     }
   }
 `;
@@ -25,7 +25,7 @@ class UserListPage extends Component {
           if (error) {
             return <div>{error.message}</div>;
           } else if (props) {
-            return <UserList userList={props.userList} />;
+            return <UserList viewer={props.viewer} />;
           }
           return <div>Loading</div>;
         }}

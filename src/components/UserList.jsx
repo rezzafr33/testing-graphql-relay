@@ -4,13 +4,29 @@ import {
   graphql,
 } from 'react-relay';
 import User from './User';
+import DeleteUserMutation from '../mutations/DeleteUserMutation';
 
 class UserList extends Component {
+  constructor(props) {
+    super(props);
+    this.handleDeleteUser = this.handleDeleteUser.bind(this);
+  }
+
+  handleDeleteUser(id) {
+    DeleteUserMutation(id);
+  }
+
   render() {
     return (
       <ul>
-        {this.props.userList.userConnection.edges.map(
-          ({ node }) => <User key={node.__id} user={node} />,
+        {this.props.viewer.users.edges.map(
+          ({ node }) => (
+            <User
+              key={node.__id}
+              user={node}
+              handleClick={this.handleDeleteUser}
+            />
+          ),
         )}
       </ul>
     );
@@ -19,8 +35,8 @@ class UserList extends Component {
 
 export default createFragmentContainer(
   UserList, graphql `
-    fragment UserList_userList on UserList {
-      userConnection(last: 10) @connection(key: "UserList_userConnection", filters: []) {
+    fragment UserList_viewer on UserList {
+      users(last: 10) @connection(key: "UserList_users", filters: []) {
         edges {
           node {
             ...User_user

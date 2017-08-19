@@ -1,9 +1,11 @@
 {
-  "presets": [
-    "env",
-    "react"
-  ],
+  "passPerPreset": true,
   "plugins": [
-    "relay"
+    "relay",
+    "transform-runtime"
+  ],
+  "presets": [
+    "react",
+    "env"
   ]
 }

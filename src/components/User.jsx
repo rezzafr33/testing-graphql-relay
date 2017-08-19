@@ -7,7 +7,12 @@ import {
 class User extends Component {
   render() {
     return (
-      <li>{this.props.user.username}</li>
+      <li>
+        <span>{this.props.user.username}</span>
+        <button
+          onClick={() => { this.props.handleClick(this.props.user.id) }}
+        >delete</button>
+      </li>
     );
   }
 }
