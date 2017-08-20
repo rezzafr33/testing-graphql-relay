@@ -17,6 +17,12 @@ import {
   mutationWithClientMutationId,
 } from 'graphql-relay';
 
+import { PubSub } from 'graphql-subscriptions';
+
+const pubsub = new PubSub();
+
+const USER_CREATED = 'USER_CREATED';
+
 const globalIdFetcher = (globalId, { models }) => {
   const { type, id } = fromGlobalId(globalId);
   switch (type) {
@@ -81,6 +87,18 @@ const queryType = new GraphQLObjectType({
   },
 });
 
+const subscriptionType = new GraphQLObjectType({
+  name: 'RootSubscription',
+  fields: {
+    userCreated: {
+      type: UserType,
+      subscribe: () => pubsub.asyncIterator(USER_CREATED),
+      resolve: obj => obj,
+    },
+  },
+});
+
+
 const createUserMutation = mutationWithClientMutationId({
   name: 'CreateUser',
   inputFields: {
@@ -92,7 +110,11 @@ const createUserMutation = mutationWithClientMutationId({
       resolve: obj => obj,
     },
   },
-  mutateAndGetPayload: async (params, { models }) => models.User.create(params),
+  mutateAndGetPayload: async (params, { models }) => models.User.create(params)
+    .then((user) => {
+      pubsub.publish(USER_CREATED, user);
+      return user;
+    }),
 });
 
 const deleteUserMutation = mutationWithClientMutationId({
@@ -128,6 +150,7 @@ const mutationType = new GraphQLObjectType({
 const schema = new GraphQLSchema({
   query: queryType,
   mutation: mutationType,
+  subscription: subscriptionType,
 });
 
 export default schema;
